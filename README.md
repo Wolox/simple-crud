@@ -60,7 +60,7 @@ extend SimpleCrud
 before_action :set_params
 
 def set_params
-  SimpleCrud.params = params
+  SimpleCrudController.params = params
 end
 ```
 
