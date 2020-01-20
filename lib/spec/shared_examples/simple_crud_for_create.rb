@@ -1,3 +1,5 @@
+require_relative 'helpers.rb'
+
 shared_examples 'simple crud for create' do
   describe 'POST #create' do
     let(:model_class) do
@@ -14,11 +16,11 @@ shared_examples 'simple crud for create' do
     context 'without authenticated user' do
       subject!(:req) { post :create, params: attributes_for(model_class) }
 
-      include_examples 'unauthorized when not logged in'
+      include_examples 'unauthorized when not logged in' if check_authenticate(:create)
     end
 
     context 'when successfully creating an article' do
-      include_context 'with authenticated user'
+      include_context 'with authenticated user' if check_authenticate(:create)
       let(:model_params) do
         attributes_for(model_class)
       end

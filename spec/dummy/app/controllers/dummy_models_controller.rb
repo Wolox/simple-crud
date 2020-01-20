@@ -12,9 +12,9 @@ class DummyModelsController < ApplicationController
   def dummy_model_params
     params.permit(:name, :something)
   end
-  simple_crud_for :update
-  simple_crud_for :show
-  simple_crud_for :index
-  simple_crud_for :create
-  simple_crud_for :destroy
+  simple_crud_for :update, authenticate: false
+  simple_crud_for :show, authenticate: false
+  simple_crud_for :index, authenticate: false
+  simple_crud_for :create, authenticate: false
+  simple_crud_for :destroy, authenticate: false
 end

@@ -3,7 +3,6 @@ class ApplicationController < ActionController::Base
   include Wor::Paginate
   include ActionController::MimeResponds
   respond_to :json
-  before_action :authenticate_user!
   # i18n configuration. See: http://guides.rubyonrails.org/i18n.html
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
   rescue_from ActiveRecord::StatementInvalid, with: :unprocessable
