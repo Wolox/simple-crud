@@ -18,7 +18,7 @@ def model_serializer
 end
 
 def model
-  @created_model ||= create(model_class)
+  create(model_class)
 end
 
 def model_class_object
@@ -38,5 +38,5 @@ def make_policies_succeed(method)
 end
 
 def model_params
-  @model_params ||= attributes_for(model_class)
+  attributes_for(model_class)
 end
