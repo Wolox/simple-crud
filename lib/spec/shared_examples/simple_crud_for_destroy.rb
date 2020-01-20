@@ -11,7 +11,7 @@ shared_examples 'simple crud for destroy' do
 
       before do
         model
-        make_policies_succeed(:destroy) if check_authenticate(:destroy)
+        make_policies_succeed(:destroy)
         delete :destroy, params: { id: model.id }
       end
 
@@ -29,7 +29,7 @@ shared_examples 'simple crud for destroy' do
         delete :destroy, params: { id: model.id + 13 }
       end
 
-      it 'response with 200 status code' do
+      it 'response with 404 status code' do
         expect(response).to have_http_status(:not_found)
       end
     end
@@ -44,7 +44,7 @@ shared_examples 'simple crud for destroy' do
           delete :destroy, params: { id: model.id }
         end
 
-        it 'response with 200 status code' do
+        it 'response with forbidden status code' do
           expect(response).to have_http_status(:forbidden)
         end
       end

@@ -18,4 +18,4 @@ class DummyModelsController < ApplicationController
   simple_crud_for :update
   simple_crud_for :show
   simple_crud_for :index
-  end
+end

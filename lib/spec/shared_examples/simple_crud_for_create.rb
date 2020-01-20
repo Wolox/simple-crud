@@ -8,13 +8,22 @@ shared_examples 'simple crud for create' do
       include_examples 'unauthorized when not logged in' if check_authenticate(:create)
     end
 
+    if check_authorize(:destroy)
+      context 'when not authorized' do
+        subject!(:req) { post :create, params: model_params }
+
+        it 'fails with unauthorized' do
+          make_policies_fail(:create)
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+    end
+
     context 'when successfully creating an article' do
       include_context 'with authenticated user' if check_authenticate(:create)
-      let(:model_params) do
-        attributes_for(model_class)
-      end
 
       before do
+        make_policies_succeed(:create)
         post :create, params: model_params
       end
 
