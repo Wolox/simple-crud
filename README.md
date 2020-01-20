@@ -89,6 +89,7 @@ simple_crud_for :index, paginate: false, authorize: false, serializer: CustomSer
 
 - Paginate: whether it should paginate or not. `true` paginates using wor-paginate, `false` doesn't paginate
 - Authorize: whether it should use Pundit to automatically check if the action is permitted
+- Authenticate: whether it should use Devise to check for a current_user
 - Serializer: specify a particular serializer you should use
 
 You'll need a few things so they work correctly:
@@ -115,8 +116,12 @@ class AuthorPolicy
 end
 
 ```
+
+#### Authenticate
+SimpleCrud will assume a current_user method. Future versions will support a custom model. Defining a current_user method in ApplicationController should work if you're using a different model, as of now.
+
 #### Serializer
-The name of the serializer, by default, is the name of the model followed by Serializer, as is the standard for [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers). It's possible to just pass a custom serializer class though. As for the serializer itself, it's a standard serializer, with the gotcha that you need to include `:id` for the SimpleCrud examples to work
+The name of the serializer, by default, is the name of the model followed by Serializer, as is the standard for [ActiveModelSerializers](https://github.com/rails-api/active_model_serializers). It's possible to just pass a custom serializer class though. As for the serializer itself, it's a standard serializer, with the gotcha that you need to include `:id` for the SimpleCrud examples to work.
 
 ```ruby
 class AuthorSerializer < ActiveModel::Serializer
@@ -138,13 +143,7 @@ describe V1::Backoffice::AuthorsController do
 end
 ```
 
-If, for example, you didn't use pagination when you used `simple_crud_for`, or you just don't want to add the corresponding tests, you can just do:
-```ruby
-include_examples 'simple crud for create' do
-  paginate = false
-end
-```
-as well as `authorize = false` or `serializer = CustomSerializer`
+It's not needed to specify paginate: true and such, since the shared examples will use the configuration that was originally passed to simple_crud_for
 
 ## Contributing
 

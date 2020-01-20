@@ -2,17 +2,6 @@ require_relative 'helpers.rb'
 
 shared_examples 'simple crud for create' do
   describe 'POST #create' do
-    let(:model_class) do
-      described_class.to_s.split('::')
-                     .last.sub('Controller', '').singularize.underscore
-    end
-    let(:model_class_object) do
-      model_class.classify.constantize
-    end
-    let(:model) do
-      create(model_class)
-    end
-
     context 'without authenticated user' do
       subject!(:req) { post :create, params: attributes_for(model_class) }
 

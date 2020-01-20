@@ -1,3 +1,3 @@
 class DummyModelSerializer < ActiveModel::Serializer
-  attributes :something, :id
+  attributes :something, :id, :user_id
 end

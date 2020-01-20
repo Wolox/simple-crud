@@ -11,7 +11,6 @@ module SimpleCrudController
   def simple_crud_for(method, parameters = {})
     parameters = set_parameters(parameters)
     klass = simple_crud_controller_model
-    byebug if method == :create
     check_valid_method(method)
     check_policies(parameters)
     check_serializer(parameters)
@@ -38,7 +37,7 @@ module SimpleCrudController
       requested = klass.find(params[:id])
 
       options = {}.merge(serializer: parameters[:serializer]).compact
-      authorize requested if parameters[:authorize]
+      authorize requested if parameters[:authorize] && parameters[:authenticate]
       render({ json: requested }.merge(options))
     end
   end
@@ -46,7 +45,7 @@ module SimpleCrudController
   def crud_lambda_for_index(klass, parameters = {})
     lambda do
       authenticate_user! if parameters[:authenticate]
-      authorize klass.new if parameters[:authorize]
+      authorize klass.new if parameters[:authorize] && parameters[:authenticate]
       paginate = parameters[:paginate]
       serializer = parameters[:serializer]
       options = {}.merge(each_serializer: serializer).compact
@@ -60,7 +59,7 @@ module SimpleCrudController
       authenticate_user! if parameters[:authenticate]
       permitted_params = send("#{self.class.simple_crud_controller_model.to_s.underscore}_params")
       byebug
-      authorize klass.new(permitted_params) if parameters[:authorize]
+      authorize klass.new(permitted_params) if parameters[:authorize] && parameters[:authenticate]
       render json: klass.create!(permitted_params), status: :created
     end
   end
@@ -69,8 +68,7 @@ module SimpleCrudController
     lambda do
       authenticate_user! if parameters[:authenticate]
       requested = klass.find(params[:id])
-      byebug
-      authorize requested if parameters[:authorize]
+      authorize requested if parameters[:authorize] && parameters[:authenticate]
       permitted_params = send("#{self.class.simple_crud_controller_model.to_s.underscore}_params")
       render json: requested.update!(permitted_params)
     end
@@ -80,7 +78,7 @@ module SimpleCrudController
     lambda do
       authenticate_user! if parameters[:authenticate]
       requested = klass.find(params[:id])
-      authorize requested if parameters[:authorize]
+      authorize requested if  parameters[:authorize] && parameters[:authenticate]
       render json: klass.find(params[:id]).destroy
     end
   end

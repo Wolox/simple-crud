@@ -1,6 +1,6 @@
 ENV['RAILS_ENV'] ||= 'test'
 require 'spec_helper'
-require File.expand_path('../../spec/dummy/config/environment.rb', __FILE__)
+require File.expand_path('../spec/dummy/config/environment.rb', __dir__)
 require 'rspec/rails'
 require 'pundit/rspec'
 require 'wor/paginate/rspec'
@@ -9,7 +9,7 @@ require 'simple_crud/rspec'
 require 'fictium/rspec'
 require 'devise'
 
-Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
+Dir[Rails.root.join('spec/support/**/*.rb')].sort.each { |f| require f }
 
 # VCR Configuration
 # require 'vcr'

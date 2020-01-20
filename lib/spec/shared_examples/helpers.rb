@@ -7,3 +7,31 @@ end
     get_option(method, option)
   end
 end
+
+
+def model_class
+  described_class.to_s.split('::')
+                 .last.sub('Controller', '').singularize.underscore
+end
+
+def model
+  create(model_class)
+end
+
+
+def model_class_object
+  model_class.classify.constantize
+end
+
+def policy_class_object
+  "#{model_class_object}Policy".classify.constantize
+end
+def make_policies_fail(method)
+  byebug
+  allow_any_instance_of(policy_class_object).to receive("#{method}?").and_return(false)
+end
+
+def make_policies_succeed(method)
+    byebug
+    allow_any_instance_of(policy_class_object).to receive("#{method}?").and_return(true)
+end

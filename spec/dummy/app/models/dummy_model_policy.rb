@@ -1,28 +1,32 @@
 class DummyModelPolicy
-  attr_reader :user, :author
+  attr_reader :user, :dummy_model
 
   def initialize(user, dummy_model)
     @user = user
     @dummy_model = dummy_model
   end
 
+  def check_user
+    user == dummy_model.user
+  end
+
   def show?
-    user.present?
+    check_user
   end
 
   def update?
-    user.present?
+    check_user
   end
 
   def create?
-    user.present?
+    check_user
   end
 
   def destroy?
-    user.present?
+    check_user
   end
 
   def index?
-    user.present?
+    check_user
   end
 end
