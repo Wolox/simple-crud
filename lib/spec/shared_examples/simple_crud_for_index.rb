@@ -1,30 +1,34 @@
 shared_examples 'simple crud for index' do
   describe 'GET #index' do
-    let(:model_class) do
-      described_class.to_s.split('::')
-                     .last.sub('Controller', '').singularize.underscore
-    end
-    let(:model_class_object) do
-      model_class.classify.constantize
-    end
-    let(:model) do
-      create(model_class)
-    end
-    let(:model_serializer) do
-      defined?(serializer) ? serializer : "#{model.class}_serializer".classify.constantize
-    end
-
     let(:created_models) { create_list(model_class, 10) }
 
     before { created_models }
 
-    if defined?(paginate) && !paginate
-      context 'when getting all models' do
-        include_context 'with authenticated user'
-        before do
-          get :index
-        end
+    context 'without authenticated user' do
+      subject!(:req) { get :index }
 
+      include_examples 'unauthorized when not logged in' if check_authenticate(:create)
+    end
+
+    if check_authorize(:create)
+      context 'when not authorized' do
+        subject!(:req) { get :index }
+
+        it 'fails with forbidden' do
+          make_policies_fail(:index)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+
+    context 'with authenticated user' do
+      include_context 'with authenticated user' if check_authenticate(:index)
+      before do
+        make_policies_succeed(:index)
+        get :index
+      end
+
+      if check_paginate(:index)
         it 'renders models correctly serialized' do
           expect(response_body).to have_been_serialized_with(model_serializer).to_json
         end
@@ -32,14 +36,7 @@ shared_examples 'simple crud for index' do
         it 'renders the correct models' do
           expect(response_body.map(&:id)).to eq(model.all.map(&:id))
         end
-      end
-    else
-      context 'when getting paginated models' do
-        include_context 'with authenticated user'
-        before do
-          get :index
-        end
-
+      else
         it 'renders models correctly serialized' do
           ### TODO: fix
           # expect(response_body['page']).to have_been_serialized_with(model_serializer).to_json

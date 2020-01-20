@@ -58,7 +58,6 @@ module SimpleCrudController
     lambda do
       authenticate_user! if parameters[:authenticate]
       permitted_params = send("#{self.class.simple_crud_controller_model.to_s.underscore}_params")
-      byebug
       authorize klass.new(permitted_params) if parameters[:authorize] && parameters[:authenticate]
       render json: klass.create!(permitted_params), status: :created
     end

@@ -3,20 +3,6 @@ shared_examples 'simple crud for show' do
   describe action 'GET #show' do
     subject(:show_request) { get :show, params: show_params }
 
-    let(:model_class) do
-      described_class.to_s.split('::')
-                     .last.sub('Controller', '').singularize.underscore
-    end
-    let(:model_class_object) do
-      model_class.classify.constantize
-    end
-    let(:model) do
-      create(model_class)
-    end
-    let(:model_serializer) do
-      defined?(serializer) ? serializer : "#{model.class}_serializer".classify.constantize
-    end
-
     before do
       model
     end

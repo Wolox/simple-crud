@@ -1,27 +1,24 @@
 shared_examples 'simple crud for update' do
   describe 'PUT #update' do
-    let(:model_class) do
-      described_class.to_s.split('::')
-                     .last.sub('Controller', '').singularize.underscore
-    end
-    let(:model_class_object) do
-      model_class.classify.constantize
-    end
-    let(:model) do
-      create(model_class)
-    end
-
     context 'without authenticated user' do
       subject!(:req) { put :update, params: attributes_for(model_class).merge(id: model.id) }
 
       include_examples 'unauthorized when not logged in'
     end
 
+    if check_authorize(:destroy)
+      context 'when not authorized' do
+        subject!(:req) { put :update, params: model_params.merge(id: model.id) }
+
+        it 'fails with forbidden' do
+          make_policies_fail(:update)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
+
     context 'when successfully updating an model' do
       include_context 'with authenticated user'
-      let(:model_params) do
-        attributes_for(model.class.to_s.underscore.to_sym)
-      end
 
       before do
         model
