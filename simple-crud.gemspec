@@ -22,5 +22,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'pundit'
   s.add_dependency 'devise_jwt_controllers'
   s.add_dependency 'fictium'
+  s.add_dependency 'toschas-filterable'
   s.add_dependency 'wor-paginate'
 end

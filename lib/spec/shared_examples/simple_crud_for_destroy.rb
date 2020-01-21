@@ -10,9 +10,9 @@ shared_examples 'simple crud for destroy' do
       context 'when not authorized' do
         subject!(:req) { delete :destroy, params: { id: model.id } }
 
-        it 'fails with forbidden' do
+        it 'fails with unauthorized' do
           make_policies_fail(:index)
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:unauthorized)
         end
       end
     end
