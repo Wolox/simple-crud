@@ -13,9 +13,9 @@ class DummyModelsController < ApplicationController
     params.permit(:name, :something, :user_id)
   end
 
-  simple_crud_for :create
-  simple_crud_for :destroy, authenticate: false
-  simple_crud_for :update
-  simple_crud_for :show
-  simple_crud_for :index
+  def dummy_model_filters
+    params.permit(:by_name, :by_something, :by_user_id)
+  end
+
+  simple_crud
 end

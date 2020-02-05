@@ -15,7 +15,9 @@ SimpleCrud
       - [Options](#options)
         - [Paginate](#paginate)
         - [Authorize](#authorize)
+        - [Authenticate](#authenticate)
         - [Serializer](#serializer)
+        - [Filter](#filter)
       - [Shared examples](#shared-examples)
   - [Contributing](#contributing)
   - [Releases](#releases)
@@ -26,11 +28,11 @@ SimpleCrud
 
 ## Description
 
-Simple Crud is a gem for Rails that simplifies writing standard CRUD actions, while also adding tools so it's not needed to write tests for them. Its main objective is replacing generally copy-pasted code like generic paginated, authenticated index methods for simple lines such as
+Simple Crud is a gem for Rails that simplifies writing standard CRUD actions, while also adding tools so it's not needed to write tests for them. Its main objective is replacing generally copy-pasted code like generic paginated, authenticated, filtered index methods for simple lines such as
 ```ruby
 simple_crud_for :index
 ```
-It includes support for index, create, destroy, update and show, and options to specify whether it should apply pagination, authorization and if a particular serializer should be used. Keep in mind, though, that the idea is not to replace writing methods in controllers altogether, but only to replace most standard cases.
+It includes support for index, create, destroy, update and show, and options to specify whether it should apply pagination, authorization, authentication, filtering and if a particular serializer should be used. Keep in mind, though, that the idea is not to replace writing methods in controllers altogether, but only to replace most standard cases.
 
 ## Installation
 Add the following line to your application's Gemfile:
@@ -52,9 +54,11 @@ $ gem install simple_crud
 ## Usage
 ### Setup
 #### Application controller
-Before SimpleCrud can be used, some boilerplate is needed. Add the following to your ApplicationController (or every controller in case you don't want it included in all controllers)
+Before SimpleCrud can be used, some boilerplate is needed. Add the following to your ApplicationController
+
 ```ruby
 include Pundit
+include Wor::Paginate
 extend SimpleCrud
 
 before_action :set_params
@@ -62,8 +66,25 @@ before_action :set_params
 def set_params
   SimpleCrudController.params = params
 end
-```
 
+rescue_from ActiveRecord::RecordNotFound, with: :not_found
+rescue_from ActiveRecord::StatementInvalid, with: :unprocessable
+rescue_from ActiveRecord::RecordInvalid, with: :unprocessable
+rescue_from ActionController::ParameterMissing, with: :unprocessable
+rescue_from Pundit::NotAuthorizedError, with: :forbidden
+
+def not_found(_exception)
+  head :not_found
+end
+
+def unprocessable(exception)
+  render json: { errors: exception }, status: :unprocessable_entity
+end
+
+def forbidden(exception)
+  render json: { errors: exception }, status: :forbidden
+end
+```
 
 ### Each controller
 In case you need either update or create, create a method with the valid input params using standard rails:
@@ -81,22 +102,33 @@ simple_crud_for :index
 simple_crud_for :create
 simple_crud_for :destroy
 ```
+or rails-like syntax
+
+```ruby
+simple_crud_for only: [:update, :show]
+```
+
+or the following for all methods with default options:
+```ruby
+simple_crud
+```
 
 Each method supports different options, as in:
-```
+```ruby
 simple_crud_for :index, paginate: false, authorize: false, serializer: CustomSerializer
 ```
 
-- Paginate: whether it should paginate or not. `true` paginates using wor-paginate, `false` doesn't paginate
-- Authorize: whether it should use Pundit to automatically check if the action is permitted
-- Authenticate: whether it should use Devise to check for a current_user
-- Serializer: specify a particular serializer you should use
+- Paginate: whether it should paginate or not. `true` paginates using wor-paginate, `false` doesn't paginate at all.
+- Authorize: whether it should use Pundit to automatically check if the action is permitted. `true` uses pundit, `false` doesn't.
+- Authenticate: whether it should use Devise to check for a current_user. `true` authenticates, `false` doesn't.
+- Serializer: specify a particular serializer you should use. If none is supplied, the default one for the model will be used.
+- Filter: specify whether index should use toscha-filterable to filter.  `true` filters, `false` doesn't.
 
 You'll need a few things so they work correctly:
 
 ### Options
 #### Paginate
-No options are needed, but the pagination is done using [wor-paginate](https://github.com/Wolox/wor-paginate) so read the documentation in case you need to customize the output.
+No parameters are needed, but the pagination is done using [wor-paginate](https://github.com/Wolox/wor-paginate) so read the documentation in case you need to customize the output.
 
 #### Authorize
 The name of the policy should be the model followed by Policy, as in `AuthorPolicy`. Support for custom policies is upcoming. The policy should be a standard Pundit policy, for example:
@@ -129,21 +161,36 @@ class AuthorSerializer < ActiveModel::Serializer
 end
 ```
 
-### Shared examples
-While optional, using the included shared examples saves you from writing the standard test cases for the methods. You can even use them if you didn't use `simple_crud_for`, as a set of basic tests. To include them, just add `require 'simple_crud/rspec'` to your `rails_helper.rb` file and add the lines you need to your `*_spec.rb` files:
+#### Filter
+While the `filter` option has no parameters, it needs a method defined in the controller like
+```ruby
+def dummy_model_filters
+  params.permit(:by_name, :by_something, :by_user_id)
+end
+```
+and the corresponding filters in the model
+```ruby
+filter_by :something, :user_id, :name
+```
+Read the documentation for [Filterable](https://github.com/toschas/filterable) to see what you can do.
+
+### Shared examples (alpha)
+While optional, using the included shared examples saves you from writing the standard test cases for the methods. To include them, just add `require 'simple_crud/rspec'` to your `rails_helper.rb` file and add the lines you need to your `*_spec.rb` files:
 ```ruby
 require 'rails_helper'
 
 describe V1::Backoffice::AuthorsController do
-  include_examples 'simple crud for update'
   include_examples 'simple crud for show'
-  include_examples 'simple crud for create'
   include_examples 'simple crud for index'
+  include_examples 'simple crud for update'
+  include_examples 'simple crud for create'
   include_examples 'simple crud for destroy'
 end
 ```
 
-It's not needed to specify paginate: true and such, since the shared examples will use the configuration that was originally passed to simple_crud_for
+You can't specify options such as  `paginate: true` since the shared examples will use the configuration that was originally passed to simple_crud_for.
+
+As of now, the specs generated are *not* complete. This will be fixed in following versions.
 
 ## Contributing
 

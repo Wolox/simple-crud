@@ -2,7 +2,7 @@ def get_option(method, option)
   described_class.instance_variable_get(:@simple_crud_metadata)[method][option]
 end
 
-%i[paginate authorize authenticate serializer].each do |option|
+%i[paginate authorize authenticate serializer filter].each do |option|
   define_method("check_#{option}") do |method|
     get_option(method, option)
   end
@@ -18,7 +18,7 @@ def model_serializer
 end
 
 def model
-  @created_model ||= create(model_class)
+  @model ||= create(model_class)
 end
 
 def model_class_object
@@ -26,6 +26,10 @@ def model_class_object
 end
 
 def policy_class_object
+  "#{model_class_object}Policy".classify.constantize
+end
+
+def model_filters
   "#{model_class_object}Policy".classify.constantize
 end
 

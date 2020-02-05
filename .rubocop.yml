@@ -5,11 +5,13 @@ AllCops:
     - spec/dummy/db/**/*
     - spec/dummy/config/**/*
     - spec/spec_helper.rb
+    - spec/dummy/bin/**
+
 
 Style/Documentation:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 99
 
 Style/FrozenStringLiteralComment:
@@ -19,6 +21,8 @@ Metrics/BlockLength:
   Enabled: true
   Exclude:
     - spec/**/*
+    - lib/spec/**/*
+    - spec/dummy/**/*
 
 # rubocop-rspec custom configurations
 

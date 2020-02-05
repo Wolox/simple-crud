@@ -4,7 +4,6 @@ require File.expand_path('../spec/dummy/config/environment.rb', __dir__)
 require 'rspec/rails'
 require 'pundit/rspec'
 require 'wor/paginate/rspec'
-include ActionDispatch::TestProcess
 require 'simple_crud/rspec'
 require 'fictium/rspec'
 require 'devise'

@@ -27,6 +27,7 @@ group :development, :test do
   gem 'pundit'
   gem 'generator_spec'
   gem 'wor-paginate'
+  gem 'toschas-filterable'
   gem 'rb-readline'
   gem 'rake'
   gem 'rspec'

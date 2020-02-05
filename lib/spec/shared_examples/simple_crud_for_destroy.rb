@@ -6,6 +6,17 @@ shared_examples 'simple crud for destroy' do
       include_examples 'unauthorized when not logged in' if check_authenticate(:destroy)
     end
 
+    if check_authorize(:destroy)
+      context 'when not authorized' do
+        subject!(:req) { delete :destroy, params: { id: model.id } }
+
+        it 'fails with unauthorized' do
+          make_policies_fail(:index)
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+    end
+
     context 'when ID is valid' do
       include_context 'with authenticated user' if check_authenticate(:destroy)
 
